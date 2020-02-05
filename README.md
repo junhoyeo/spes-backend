@@ -5,6 +5,7 @@
 ### 회원가입
 `POST /api/auth/register`
 
+request
 ```json
 {
     "username" : "string",
@@ -17,6 +18,7 @@
 ### 로그인
 `POST /api/auth/login`
 
+request
 ```json
 {
     "email": "string",
@@ -24,6 +26,7 @@
 }
 ```
 
+response
 ```json
 {
     "token": "string",
@@ -36,11 +39,44 @@
 }
 ```
 
-## 방
+## 사용자 (토큰 필요)
+
+### 아이디로 사용자 정보 가져오기
+`GET /api/user/:id`
+
+response
+```json
+{
+    "_id": "objectID",
+    "username": "string",
+    "email": "string",
+    "profile": "string"
+}
+```
+
+### 모든 사용자 정보 가져오기
+`GET /api/user`
+
+response
+```json
+{
+    "users": [
+        {
+            "_id": "objectID",
+            "username": "string",
+            "email": "string",
+            "profile": "string"
+        }
+    ]
+}
+```
+
+## 방 (토큰 필요)
 
 ### 방 목록
 `GET /api/room`
 
+response
 ```json
 {
     "rooms": [
@@ -50,7 +86,14 @@
                 "name": "string",
                 "profile": "string (link)"
             },
-            "users": ["여준호", "민승현", "손지민"],
+            "users": [
+                {
+                    "_id": "objectID",
+                    "username": "string",
+                    "email": "string",
+                    "profile": "string"
+                }
+            ],
             "title": "string"
         }
     ]
@@ -62,31 +105,41 @@
 ### 방 정보
 `GET /api/room/:roomID`
 
+response
 ```json
 {
-    "id": "objectID",
-    "users": ["여준호", "민승현", "손지민"],
+    "_id": "objectID",
+    "users": [
+        {
+            "_id": "objectID",
+            "username": "string",
+            "email": "string",
+            "profile": "string"
+        }
+    ],
     "title": "string",
     "goal": "string",
     "posts": [
         {
-            "id": "objectID",
+            "_id": "objectID",
             "image": "string (link)",
             "content": "string",
             "author": "userID",
-            "agree": 5,
-            "agreed": true
+            "agreedUsers": ["userObjectId"],
+            "agreed": true,
+            "created": 1580878048528
         },
     ]
 }
 ```
 
-- `agree`는 동의한 수
+- `agreedUsers`는 동의한 사용자의 ID 리스트
 - `agreed`는 동의 했는지 여부
 
 ### 방 생성
 `POST /api/room`
 
+request
 ```json
 {
     "title": "string",
@@ -96,37 +149,65 @@
 }
 ```
 
+response
 ```json
 {
-    "id": "objectID"
+    "_id": "objectID"
 }
 ```
 
 ### 방 입장
 `POST /api/room/:roomID`
 
-```json
-{}
-```
-
 토큰 주인을 해당 방에 넣어준다.
 
-## 포스트
+## 포스트 (토큰 필요)
 
 ### 포스트 생성
 `POST /api/post/:roomID`
 
+request
 ```json
 {
-    "image": "string (link)",
-    "content": "string"
+    "content": "string",
+    "image": "string (link, optional)"
 }
 ```
 
+response
 ```json
 {
-    "id": "objectID"
+    "_id": "objectID"
 }
 ```
 
 토큰 주인이 글을 쓴다.
+
+### 포스트 정보
+`GET /api/post/:postId`
+
+response
+```json
+{
+    "_id": "objectID",
+    "image": "string (link)",
+    "content": "string",
+    "author": "userID",
+    "agreedUsers": ["userObjectId"],
+    "agreed": true,
+    "created": 1580878048528
+}
+```
+
+### 투표
+`POST /api/post/vote/:postID`
+
+response
+```json
+{
+    "agreedUsers": ["userObjectId"],
+    "agreed": true
+}
+```
+
+토큰 주인의 투표(동의) 여부를 토글한다.

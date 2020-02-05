@@ -1,16 +1,6 @@
-import { Request, Response } from "express";
-import jwt from 'jsonwebtoken';
-import { IUser, User } from '../../../models/user';
-
-/*
-POST /api/auth/register
-{
-    username: string,
-    email: string,
-    password: string,
-    profile: string
-}
-*/
+import { Request, Response } from "express"
+import jwt from 'jsonwebtoken'
+import { IUser, User } from '../../../models/user'
 
 export const register = (req: Request, res: Response) => {
     const { username, email, password, profile } = req.body
@@ -35,19 +25,11 @@ export const register = (req: Request, res: Response) => {
         })
     }
 
-    User.findOneByEmail(email)
+    User.schema.statics.findOneByEmail(email)
         .then(create)
         .then(respond)
         .catch(onError)
 }
-
-/*
-POST /api/auth/login
-{
-    email: string,
-    password: string
-}
-*/
 
 export const login = (req: Request, res: Response) => {
     const { email, password } = req.body
@@ -104,7 +86,7 @@ export const login = (req: Request, res: Response) => {
         })
     }
 
-    User.findOneByEmail(email)
+    User.schema.statics.findOneByEmail(email)
         .then(check)
         .then(respond)
         .catch(onError)

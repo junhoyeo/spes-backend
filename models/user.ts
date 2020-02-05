@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model, model } from 'mongoose'
+import mongoose, { Document, model, Schema } from 'mongoose'
 import scrypt from 'scryptsy'
 
 const hashPassword = (password: string) =>
@@ -13,13 +13,10 @@ export interface IUser extends Document {
     profile: string
     point: number
 
+    create(username: string, email: string, password: string, profile: string): void
     findOneByEmail(email: string): Promise<IUser>
     verify(password: string): boolean
-}
-
-export interface IUserModel extends Model<IUser> {
-    findOneByEmail(email: string): Promise<IUser>
-    verify(password: string): boolean
+    toUserResponse(): UserResponse
 }
 
 const UserSchema: Schema = new Schema({
@@ -41,11 +38,28 @@ UserSchema.statics.create = function(username: string, email: string, password: 
 }
 
 UserSchema.statics.findOneByEmail = function(email: string) {
-    return this.findOne({ email }).exec()
+    return User.findOne({ email }).exec()
 }
 
 UserSchema.methods.verify = function(password: string) {
     return this.password === hashPassword(password)
 }
 
-export const User = model<IUser, IUserModel>('User', UserSchema)
+UserSchema.methods.toUserResponse = function(): UserResponse {
+    const user = this as IUser
+    return {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        profile: user.profile
+    } as UserResponse
+}
+
+export const User = model<IUser>('User', UserSchema)
+
+export interface UserResponse {
+    _id: string
+    username: string
+    email: string
+    profile: string
+}
